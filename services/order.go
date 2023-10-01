@@ -1,11 +1,13 @@
 package services
 
 import (
+	"context"
 	"log"
 
 	"github.com/dragtor/impl-ddd/aggregate"
 	"github.com/dragtor/impl-ddd/domain/customer"
 	"github.com/dragtor/impl-ddd/domain/customer/memory"
+	"github.com/dragtor/impl-ddd/domain/customer/mongo"
 	"github.com/dragtor/impl-ddd/domain/product"
 	prodmem "github.com/dragtor/impl-ddd/domain/product/memory"
 	"github.com/google/uuid"
@@ -39,6 +41,17 @@ func WithCustomerRepository(cr customer.CustomerRepository) OrderConfiguration {
 func WithMemoryCustomerRepository() OrderConfiguration {
 	cr := memory.New()
 	return WithCustomerRepository(cr)
+}
+
+func WithMongoCustomerRepository(ctx context.Context, connectionString string) OrderConfiguration {
+	return func(os *OrderService) error {
+		cr, err := mongo.New(ctx, connectionString)
+		if err != nil {
+			return err
+		}
+		os.customers = cr
+		return nil
+	}
 }
 
 func WithMemoryProductRepository(products []aggregate.Product) OrderConfiguration {
