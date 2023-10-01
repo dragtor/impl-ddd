@@ -1,4 +1,4 @@
-module github.com/dragtor/impl-ddd
+module github.com/dragtor/tavern
 
 go 1.20
 

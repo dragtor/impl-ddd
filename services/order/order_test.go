@@ -1,27 +1,27 @@
-package services
+package order
 
 import (
-	"context"
 	"testing"
 
-	"github.com/dragtor/impl-ddd/aggregate"
+	"github.com/dragtor/tavern/domain/customer"
+	"github.com/dragtor/tavern/domain/product"
 	"github.com/google/uuid"
 )
 
-func init_products(t *testing.T) []aggregate.Product {
-	mac, err := aggregate.NewProduct("macbook pro", "Laptop", 500)
+func init_products(t *testing.T) []product.Product {
+	mac, err := product.NewProduct("macbook pro", "Laptop", 500)
 	if err != nil {
 		t.Fatal(err)
 	}
-	pod, err := aggregate.NewProduct("airpod", "headset", 100)
+	pod, err := product.NewProduct("airpod", "headset", 100)
 	if err != nil {
 		t.Fatal(err)
 	}
-	watch, err := aggregate.NewProduct("iwatch", "watch", 70)
+	watch, err := product.NewProduct("iwatch", "watch", 70)
 	if err != nil {
 		t.Fatal(err)
 	}
-	return []aggregate.Product{
+	return []product.Product{
 		mac, pod, watch,
 	}
 }
@@ -29,14 +29,14 @@ func init_products(t *testing.T) []aggregate.Product {
 func TestOrder_NewOrder(t *testing.T) {
 	products := init_products(t)
 	os, err := NewOrderService(
-		WithMongoCustomerRepository(context.Background(), "mongodb://localhost:27017"),
-		// WithMemoryCustomerRepository(),
+		// WithMongoCustomerRepository(context.Background(), "mongodb://localhost:27017"),
+		WithMemoryCustomerRepository(),
 		WithMemoryProductRepository(products),
 	)
 	if err != nil {
 		t.Fatal(err)
 	}
-	cust, err := aggregate.NewCustomer("shubham")
+	cust, err := customer.NewCustomer("shubham")
 	if err != nil {
 		t.Fatal(err)
 	}

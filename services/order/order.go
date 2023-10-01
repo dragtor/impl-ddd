@@ -1,23 +1,22 @@
-package services
+package order
 
 import (
 	"context"
 	"log"
 
-	"github.com/dragtor/impl-ddd/aggregate"
-	"github.com/dragtor/impl-ddd/domain/customer"
-	"github.com/dragtor/impl-ddd/domain/customer/memory"
-	"github.com/dragtor/impl-ddd/domain/customer/mongo"
-	"github.com/dragtor/impl-ddd/domain/product"
-	prodmem "github.com/dragtor/impl-ddd/domain/product/memory"
+	"github.com/dragtor/tavern/domain/customer"
+	"github.com/dragtor/tavern/domain/customer/memory"
+	"github.com/dragtor/tavern/domain/customer/mongo"
+	"github.com/dragtor/tavern/domain/product"
+	prodmem "github.com/dragtor/tavern/domain/product/memory"
 	"github.com/google/uuid"
 )
 
 type OrderConfiguration func(os *OrderService) error
 
 type OrderService struct {
-	customers customer.CustomerRepository
-	products  product.ProductRepository
+	customers customer.Repository
+	products  product.Repository
 }
 
 func NewOrderService(cgfs ...OrderConfiguration) (*OrderService, error) {
@@ -31,7 +30,7 @@ func NewOrderService(cgfs ...OrderConfiguration) (*OrderService, error) {
 	return os, nil
 }
 
-func WithCustomerRepository(cr customer.CustomerRepository) OrderConfiguration {
+func WithCustomerRepository(cr customer.Repository) OrderConfiguration {
 	return func(os *OrderService) error {
 		os.customers = cr
 		return nil
@@ -54,7 +53,7 @@ func WithMongoCustomerRepository(ctx context.Context, connectionString string) O
 	}
 }
 
-func WithMemoryProductRepository(products []aggregate.Product) OrderConfiguration {
+func WithMemoryProductRepository(products []product.Product) OrderConfiguration {
 	return func(os *OrderService) error {
 		pr := prodmem.New()
 
@@ -74,7 +73,7 @@ func (o *OrderService) CreateOrder(customerID uuid.UUID, productIDs []uuid.UUID)
 	if err != nil {
 		return 0, err
 	}
-	var products []aggregate.Product
+	var products []product.Product
 	var total float64
 	for _, id := range productIDs {
 		prod, err := o.products.GetByID(id)
@@ -86,4 +85,16 @@ func (o *OrderService) CreateOrder(customerID uuid.UUID, productIDs []uuid.UUID)
 	}
 	log.Printf("Customer : %s has ordered %d products", cust.GetName(), len(products))
 	return total, nil
+}
+
+func (os *OrderService) AddCustomer(name string) (uuid.UUID, error) {
+	c, err := customer.NewCustomer(name)
+	if err != nil {
+		return uuid.Nil, err
+	}
+	err = os.customers.Add(c)
+	if err != nil {
+		return uuid.Nil, nil
+	}
+	return c.GetID(), nil
 }
