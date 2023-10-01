@@ -4,8 +4,7 @@ import (
 	"errors"
 	"testing"
 
-	"github.com/dragtor/impl-ddd/aggregate"
-	"github.com/dragtor/impl-ddd/domain/customer"
+	"github.com/dragtor/tavern/domain/customer"
 	"github.com/google/uuid"
 )
 
@@ -15,13 +14,13 @@ func TestMemory_GetCustom(t *testing.T) {
 		id          uuid.UUID
 		expectedErr error
 	}
-	cust, err := aggregate.NewCustomer("shubham")
+	cust, err := customer.NewCustomer("shubham")
 	if err != nil {
 		t.Fatal(err)
 	}
 	id := cust.GetID()
 	repo := MemoryRepository{
-		customers: map[uuid.UUID]aggregate.Customer{
+		customers: map[uuid.UUID]customer.Customer{
 			id: cust,
 		},
 	}

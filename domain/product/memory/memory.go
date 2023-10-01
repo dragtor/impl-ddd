@@ -3,63 +3,63 @@ package memory
 import (
 	"sync"
 
-	"github.com/dragtor/impl-ddd/aggregate"
+	"github.com/dragtor/tavern/domain/product"
 	"github.com/google/uuid"
 )
 
 type MemoryProductRepository struct {
-	products map[uuid.UUID]aggregate.Product
+	products map[uuid.UUID]product.Product
 	sync.Mutex
 }
 
 func New() *MemoryProductRepository {
 	return &MemoryProductRepository{
-		products: make(map[uuid.UUID]aggregate.Product),
+		products: make(map[uuid.UUID]product.Product),
 	}
 }
 
-func (mpr *MemoryProductRepository) GetAll() ([]aggregate.Product, error) {
-	var products []aggregate.Product
+func (mpr *MemoryProductRepository) GetAll() ([]product.Product, error) {
+	var products []product.Product
 	for _, product := range mpr.products {
 		products = append(products, product)
 	}
 	return products, nil
 }
 
-func (mpr *MemoryProductRepository) GetByID(id uuid.UUID) (aggregate.Product, error) {
+func (mpr *MemoryProductRepository) GetByID(id uuid.UUID) (product.Product, error) {
 	if product, ok := mpr.products[id]; ok {
 		return product, nil
 	}
-	return aggregate.Product{}, aggregate.ErrProductNotFound
+	return product.Product{}, product.ErrProductNotFound
 }
 
-func (mpr *MemoryProductRepository) Add(product aggregate.Product) error {
-	if _, ok := mpr.products[product.GetID()]; ok {
-		return aggregate.ErrProductAlreadyExist
+func (mpr *MemoryProductRepository) Add(prod product.Product) error {
+	if _, ok := mpr.products[prod.GetID()]; ok {
+		return product.ErrProductAlreadyExist
 	}
 	mpr.Lock()
-	mpr.products[product.GetID()] = product
+	mpr.products[prod.GetID()] = prod
 	mpr.Unlock()
 	return nil
 }
 
-func (mpr *MemoryProductRepository) Update(product aggregate.Product) error {
+func (mpr *MemoryProductRepository) Update(prod product.Product) error {
 	mpr.Lock()
 	defer mpr.Unlock()
-	if _, ok := mpr.products[product.GetID()]; ok {
-		return aggregate.ErrProductAlreadyExist
+	if _, ok := mpr.products[prod.GetID()]; ok {
+		return product.ErrProductAlreadyExist
 	}
 
-	mpr.products[product.GetID()] = product
+	mpr.products[prod.GetID()] = prod
 	return nil
 }
 
-func (mpr *MemoryProductRepository) Delete(product aggregate.Product) error {
+func (mpr *MemoryProductRepository) Delete(prod product.Product) error {
 	mpr.Lock()
 	defer mpr.Unlock()
-	if _, ok := mpr.products[product.GetID()]; ok {
-		return aggregate.ErrProductAlreadyExist
+	if _, ok := mpr.products[prod.GetID()]; ok {
+		return product.ErrProductAlreadyExist
 	}
-	delete(mpr.products, product.GetID())
+	delete(mpr.products, prod.GetID())
 	return nil
 }

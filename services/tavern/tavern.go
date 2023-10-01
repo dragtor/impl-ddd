@@ -1,15 +1,16 @@
-package services
+package tavern
 
 import (
 	"log"
 
+	"github.com/dragtor/tavern/services/order"
 	"github.com/google/uuid"
 )
 
 type TavernConfiguration func(os *Tavern) error
 
 type Tavern struct {
-	OrderService *OrderService
+	OrderService *order.OrderService
 }
 
 func NewTavern(cfgs ...TavernConfiguration) (*Tavern, error) {
@@ -24,7 +25,7 @@ func NewTavern(cfgs ...TavernConfiguration) (*Tavern, error) {
 	return ts, nil
 }
 
-func WithOrderService(os *OrderService) TavernConfiguration {
+func WithOrderService(os *order.OrderService) TavernConfiguration {
 	return func(t *Tavern) error {
 		t.OrderService = os
 		return nil
