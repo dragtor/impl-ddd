@@ -1,6 +1,7 @@
 package services
 
 import (
+	"context"
 	"testing"
 
 	"github.com/dragtor/impl-ddd/aggregate"
@@ -28,7 +29,8 @@ func init_products(t *testing.T) []aggregate.Product {
 func TestOrder_NewOrder(t *testing.T) {
 	products := init_products(t)
 	os, err := NewOrderService(
-		WithMemoryCustomerRepository(),
+		WithMongoCustomerRepository(context.Background(), "mongodb://localhost:27017"),
+		// WithMemoryCustomerRepository(),
 		WithMemoryProductRepository(products),
 	)
 	if err != nil {
